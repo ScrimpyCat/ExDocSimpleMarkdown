@@ -1,0 +1,2 @@
+defmodule ExDocSimpleMarkdown do
+end
