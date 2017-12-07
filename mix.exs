@@ -4,10 +4,12 @@ defmodule ExDocSimpleMarkdown.Mixfile do
     def project do
         [
             app: :ex_doc_simple_markdown,
+            description: "A SimpleMarkdown processor for ExDoc.",
             version: "0.1.0",
             elixir: "~> 1.5",
             start_permanent: Mix.env == :prod,
-            deps: deps()
+            deps: deps(),
+            package: package()
         ]
     end
 
@@ -21,6 +23,14 @@ defmodule ExDocSimpleMarkdown.Mixfile do
         [
             { :simple_markdown, "~> 0.3" },
             { :ex_doc, "~> 0.18" }
+        ]
+    end
+
+    defp package do
+        [
+            maintainers: ["Stefan Johnson"],
+            licenses: ["BSD 2-Clause"],
+            links: %{ "GitHub" => "https://github.com/ScrimpyCat/ExDocSimpleMarkdown" }
         ]
     end
 end
