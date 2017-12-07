@@ -1,4 +1,19 @@
 defmodule ExDocSimpleMarkdown do
+    @moduledoc """
+      A SimpleMarkdown processor for ExDoc.
+
+      Provides configurable options for the assets (`:assets`),
+      before_closing_head_tag (`:head_tag`), before_closing_body_tag
+      (`:body_tag`) behaviours defined by ExDoc.
+
+        config :ex_doc_simple_markdown, [
+                assets: [{ "dist/hello-js.js", "alert('hello');" }],
+                head_tag: "<script src=\\"dist/hello-js.js\\"></script>",
+                body_tag: "<script>alert('goodbye');</script>"
+            ]
+    ]
+    """
+
     @behaviour ExDoc.Markdown
 
     @impl ExDoc.Markdown
