@@ -5,7 +5,7 @@ defmodule ExDocSimpleMarkdown.Mixfile do
         [
             app: :ex_doc_simple_markdown,
             description: "A SimpleMarkdown processor for ExDoc.",
-            version: "0.3.1",
+            version: "0.3.2",
             elixir: "~> 1.5",
             start_permanent: Mix.env == :prod,
             deps: deps(),
