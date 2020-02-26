@@ -36,7 +36,7 @@ defmodule ExDocSimpleMarkdown do
         extensions = Application.get_env(:ex_doc_simple_markdown, :extensions, [])
         input = Enum.reduce(extensions, input, &(&1.input(&2, opts)))
 
-        rules = Application.get_env(:simple_markdown, :rules, [])
+        rules = SimpleMarkdown.Parser.rules
         rules = case Application.get_env(:ex_doc_simple_markdown, :rules) do
             nil -> rules
             fun -> fun.(rules)
