@@ -5,7 +5,7 @@ defmodule ExDocSimpleMarkdown.Mixfile do
         [
             app: :ex_doc_simple_markdown,
             description: "A SimpleMarkdown processor for ExDoc.",
-            version: "0.3.2",
+            version: "0.4.0",
             elixir: "~> 1.5",
             start_permanent: Mix.env == :prod,
             deps: deps(),
@@ -21,7 +21,7 @@ defmodule ExDocSimpleMarkdown.Mixfile do
     # Run "mix help deps" to learn about dependencies.
     defp deps do
         [
-            { :simple_markdown, "~> 0.3" },
+            { :simple_markdown, "~> 0.6" },
             { :ex_doc, "~> 0.18" }
         ]
     end
