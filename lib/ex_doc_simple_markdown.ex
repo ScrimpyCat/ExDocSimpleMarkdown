@@ -31,10 +31,10 @@ defmodule ExDocSimpleMarkdown do
 
     @behaviour ExDoc.Markdown
 
-    @impl ExDoc.Markdown
+    if(Version.match?(ExDoc.version, ">= 0.22.0"), do: @impl ExDoc.Markdown)
     def to_ast(input, opts), do: to_html(input, opts) |> SimpleMarkdown.Renderer.HTML.Utilities.html_to_ast
 
-    @impl ExDoc.Markdown
+    if(Version.match?(ExDoc.version, "< 0.22.0"), do: @impl ExDoc.Markdown)
     def to_html(input, opts) do
         if Application.get_env(:ex_doc_simple_markdown, :init_extensions, true) do
             configure(Mix.Project.config[:docs][:markdown_processor_options] || [])
@@ -67,16 +67,16 @@ defmodule ExDocSimpleMarkdown do
         Enum.reduce(extensions, html, &(&1.output(&2, opts)))
     end
 
-    @impl ExDoc.Markdown
+    if(Version.match?(ExDoc.version, "< 0.21.0"), do: @impl ExDoc.Markdown)
     def assets(_), do: Application.get_env(:ex_doc_simple_markdown, :assets, [])
 
-    @impl ExDoc.Markdown
+    if(Version.match?(ExDoc.version, "< 0.21.0"), do: @impl ExDoc.Markdown)
     def before_closing_head_tag(_), do: Application.get_env(:ex_doc_simple_markdown, :head_tag, "")
 
-    @impl ExDoc.Markdown
+    if(Version.match?(ExDoc.version, "< 0.21.0"), do: @impl ExDoc.Markdown)
     def before_closing_body_tag(_), do: Application.get_env(:ex_doc_simple_markdown, :body_tag, "")
 
-    @impl ExDoc.Markdown
+    if(Version.match?(ExDoc.version, "< 0.21.0"), do: @impl ExDoc.Markdown)
     def configure(config) do
         Application.put_env(:ex_doc_simple_markdown, :init_extensions, false)
 
