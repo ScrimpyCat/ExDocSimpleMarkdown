@@ -4,15 +4,16 @@ defmodule ExDocSimpleMarkdown do
 
       Provides configurable options for the assets (`:assets`),
       before_closing_head_tag (`:head_tag`), before_closing_body_tag
-      (`:body_tag`) behaviours defined by ExDoc. As well as the option
-      to enable or disable pretty codeblocks (`:pretty_codeblocks`),
-      manipulate the rules (`:rules`), change the renderer (`:renderer`), and
-      specify modules that implement the extensions behaviour (`:extensions`).
+      (`:body_tag`) behaviours defined by ExDoc (when using a version earlier
+      than v0.21.0). As well as the option to enable or disable pretty
+      codeblocks (`:pretty_codeblocks`), manipulate the rules (`:rules`), change
+      the renderer (`:renderer`), and specify modules that implement the
+      extensions behaviour (`:extensions`).
 
         config :ex_doc_simple_markdown, [
-                assets: [{ "dist/hello-js.js", "alert('hello');" }],
-                head_tag: "<script src=\\"dist/hello-js.js\\"></script>",
-                body_tag: "<script>alert('goodbye');</script>",
+                assets: [{ "dist/hello-js.js", "alert('hello');" }], \# Has no effect in ExDoc v0.21.0 and later
+                head_tag: "<script src=\\"dist/hello-js.js\\"></script>", \# Has no effect in ExDoc v0.21.0 and later
+                body_tag: "<script>alert('goodbye');</script>", \# Has no effect in ExDoc v0.21.0 and later
                 pretty_codeblocks: false,
                 rules: fn rules ->
                     # Manipulate the rules
@@ -24,15 +25,21 @@ defmodule ExDocSimpleMarkdown do
                 ]
             ]
 
-      **Note:** In order for extensions to perform their `init` callback, either
-      they should be passed to the `:markdown_processor_options` option in `ex_doc`
-      or an empty list should be provided.
+      Extensions can optionally be passed to the `:markdown_processor_options`
+      option in `ex_doc`.
     """
 
     @behaviour ExDoc.Markdown
 
     @impl ExDoc.Markdown
+    def to_ast(input, opts), do: to_html(input, opts) |> SimpleMarkdown.Renderer.HTML.Utilities.html_to_ast
+
+    @impl ExDoc.Markdown
     def to_html(input, opts) do
+        if Application.get_env(:ex_doc_simple_markdown, :init_extensions, true) do
+            configure(Mix.Project.config[:docs][:markdown_processor_options] || [])
+        end
+
         extensions = Application.get_env(:ex_doc_simple_markdown, :extensions, [])
         input = Enum.reduce(extensions, input, &(&1.input(&2, opts)))
 
@@ -48,7 +55,7 @@ defmodule ExDocSimpleMarkdown do
         html = SimpleMarkdown.convert(input, parser: rules, render: renderer)
 
         html = if Application.get_env(:ex_doc_simple_markdown, :pretty_codeblocks, true) do
-            if Version.match?(ExDoc.version, "> 0.19.0") do
+            if Version.match?(ExDoc.version, ">= 0.19.0") do
                 apply(ExDoc.Highlighter, :highlight_code_blocks, [html])
             else
                 apply(ExDoc.Markdown, :pretty_codeblocks, [html])
@@ -71,6 +78,8 @@ defmodule ExDocSimpleMarkdown do
 
     @impl ExDoc.Markdown
     def configure(config) do
+        Application.put_env(:ex_doc_simple_markdown, :init_extensions, false)
+
         extensions = Enum.reduce((config[:extensions] || []), Application.get_env(:ex_doc_simple_markdown, :extensions, []), &([&1|&2]))
         Application.put_env(:ex_doc_simple_markdown, :extensions, extensions)
         Enum.each(extensions, &(&1.init()))
