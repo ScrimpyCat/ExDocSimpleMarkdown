@@ -21,7 +21,7 @@ defmodule ExDocSimpleMarkdown.Mixfile do
     # Run "mix help deps" to learn about dependencies.
     defp deps do
         [
-            { :simple_markdown, "~> 0.6" },
+            { :simple_markdown, "~> 0.8" },
             { :ex_doc, "~> 0.18" }
         ]
     end
