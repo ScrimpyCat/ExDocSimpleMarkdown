@@ -14,7 +14,7 @@ defmodule ExDocSimpleMarkdown do
                 assets: [{ "dist/hello-js.js", "alert('hello');" }], \# Has no effect in ExDoc v0.21.0 and later
                 head_tag: "<script src=\\"dist/hello-js.js\\"></script>", \# Has no effect in ExDoc v0.21.0 and later
                 body_tag: "<script>alert('goodbye');</script>", \# Has no effect in ExDoc v0.21.0 and later
-                pretty_codeblocks: false,
+                pretty_codeblocks: false, \# Has no effect in Exdoc v0.25.0 and later
                 rules: fn rules ->
                     # Manipulate the rules
                     rules
@@ -31,8 +31,19 @@ defmodule ExDocSimpleMarkdown do
 
     @behaviour ExDoc.Markdown
 
+    if(Version.match?(ExDoc.version, ">= 0.25.0"), do: @impl ExDoc.Markdown)
+    def available?(), do: true
+
     if(Version.match?(ExDoc.version, ">= 0.22.0"), do: @impl ExDoc.Markdown)
-    def to_ast(input, opts), do: to_html(input, opts) |> SimpleMarkdown.Renderer.HTML.Utilities.html_to_ast
+    def to_ast(input, opts), do: to_html(input, opts) |> SimpleMarkdown.Renderer.HTML.Utilities.html_to_ast |> insert_meta
+
+    if Version.match?(ExDoc.version, ">= 0.25.0") do
+        defp insert_meta({ tag, attrs, ast }), do: { tag, attrs, insert_meta(ast), %{} }
+        defp insert_meta(ast) when is_list(ast), do: Enum.map(ast, &insert_meta/1)
+        defp insert_meta(string), do: string
+    else
+        defp insert_meta(ast), do: ast
+    end
 
     if(Version.match?(ExDoc.version, "< 0.22.0"), do: @impl ExDoc.Markdown)
     def to_html(input, opts) do
@@ -55,10 +66,10 @@ defmodule ExDocSimpleMarkdown do
         html = SimpleMarkdown.convert(input, parser: rules, render: renderer)
 
         html = if Application.get_env(:ex_doc_simple_markdown, :pretty_codeblocks, true) do
-            if Version.match?(ExDoc.version, ">= 0.19.0") do
-                apply(ExDoc.Highlighter, :highlight_code_blocks, [html])
-            else
-                apply(ExDoc.Markdown, :pretty_codeblocks, [html])
+            cond do
+                Version.match?(ExDoc.version, ">= 0.25.0") -> html # will apply ExDoc.DocAST.highlight/3
+                Version.match?(ExDoc.version, ">= 0.19.0") -> apply(ExDoc.Highlighter, :highlight_code_blocks, [html])
+                true                                       -> apply(ExDoc.Markdown, :pretty_codeblocks, [html])
             end
         else
             html
